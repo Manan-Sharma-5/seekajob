@@ -9,11 +9,13 @@ const handler = NextAuth({
         username: { label: "email", type: "text", placeholder: "" },
         password: { label: "password", type: "password", placeholder: "" },
       },
-      async authorize(credentials: any) {
-        console.log("HUEHUE");
-        return {
-          id: "user1",
-        };
+      async authorize(credentials) {
+        const user = { id: 1, name: "admin", email: "" };
+        if (user) {
+          return user;
+        } else {
+          return null;
+        }
       },
     }),
   ],

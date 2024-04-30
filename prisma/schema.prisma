@@ -36,6 +36,9 @@ model Job {
   id          String   @id @default(cuid()) @map("_id")
   title       String
   description String
+  detailedDescription String
+  company     String
+  experience  String
   location    String
   salary      Float
   recruiter   Recruiter @relation(fields: [recruiterId], references: [id])
