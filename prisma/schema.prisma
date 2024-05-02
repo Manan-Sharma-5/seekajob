@@ -37,7 +37,7 @@ model Job {
   title       String
   description String
   detailedDescription String
-  company     String
+  Company     Company @relation(fields: [id], references: [id])
   experience  String
   location    String
   salary      Float
@@ -46,4 +46,12 @@ model Job {
   tags        String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Company {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Company    Job[]
 }

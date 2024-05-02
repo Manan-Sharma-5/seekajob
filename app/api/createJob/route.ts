@@ -25,19 +25,29 @@ export default async function POST(request: NextRequest) {
     experience,
   } = reqBody;
 
-  const job: Job = {
-    title,
-    description,
-    salary,
-    location,
-    detailedDescription,
-    company,
-    experience,
-  };
-
   try {
-    return NextResponse.ok({ message: "Job created successfully" });
+    await db.job.create({
+      data: {
+        description: description,
+        detailedDescription: detailedDescription,
+        experience: experience,
+        id: jobID,
+        location: location,
+        salary: salary,
+        title: title,
+        recruiter: {
+          connect: {
+            id: company,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ message: "Job created successfully" });
   } catch (error) {
-    return NextResponse.error({ message: "Error creating job" });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
