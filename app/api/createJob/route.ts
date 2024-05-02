@@ -11,11 +11,10 @@ interface Job {
   experience: string;
 }
 
-export default async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const reqBody = await request.json();
 
   const {
-    jobID,
     title,
     description,
     salary,
@@ -31,13 +30,17 @@ export default async function POST(request: NextRequest) {
         description: description,
         detailedDescription: detailedDescription,
         experience: experience,
-        id: jobID,
         location: location,
         salary: salary,
         title: title,
+        Company: {
+          create: {
+            name: company,
+          },
+        },
         recruiter: {
           connect: {
-            id: company,
+            id: "1",
           },
         },
       },
@@ -45,6 +48,7 @@ export default async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: "Job created successfully" });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

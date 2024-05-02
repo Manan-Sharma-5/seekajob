@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import db from "../../../../db/databaseController";
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
@@ -8,14 +8,56 @@ const handler = NextAuth({
       credentials: {
         username: { label: "email", type: "text", placeholder: "" },
         password: { label: "password", type: "password", placeholder: "" },
+        role: { label: "role", type: "text", placeholder: "" },
       },
       async authorize(credentials) {
-        const user = { id: 1, name: "admin", email: "" };
-        if (user) {
-          return user;
-        } else {
+        if (!credentials) {
           return null;
         }
+        if (!credentials.username || !credentials.password) {
+          return null;
+        }
+        if (
+          credentials.role !== "recruiter" &&
+          credentials.role !== "candidate"
+        ) {
+          return null;
+        }
+        const { username, password, role } = credentials;
+
+        if (role === "recruiter") {
+          try {
+            const user = await db.recruiter.findFirst({
+              where: { email: username },
+            });
+            if (user) {
+              return {
+                id: user.id,
+                email: user.email,
+                role: "recruiter",
+              };
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+        if (role === "candidate") {
+          try {
+            const user = await db.candidate.findFirst({
+              where: { email: username },
+            });
+            if (user) {
+              return {
+                id: user.id,
+                email: user.email,
+                role: "candidate",
+              };
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+        return null;
       },
     }),
   ],
