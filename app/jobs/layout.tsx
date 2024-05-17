@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import JobHeader from "@/components/JobHeader";
+import NextAuthProvider from "@/utils/NextAuthProvider";
+import { useSession } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,12 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <JobHeader />
+    <NextAuthProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <JobHeader />
 
-        {children}
-      </body>
-    </html>
+          {children}
+        </body>
+      </html>
+    </NextAuthProvider>
   );
 }

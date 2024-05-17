@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../db/databaseController";
+import bcrypt from "bcrypt";
 
 interface User {
   email: string;
@@ -32,13 +33,19 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await db.recruiter.create({
-        data: {
-          email: email,
-          password: password,
-          name: "Recruiter",
-        },
-      });
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await db.recruiter
+        .create({
+          data: {
+            email: email,
+            password: hashedPassword,
+            name: "Recruiter",
+          },
+        })
+        .then((res) => {
+          return NextResponse.json({ message: "User created successfully" });
+        });
     } catch (error) {
       console.error(error);
       return NextResponse.json(
@@ -57,10 +64,12 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       await db.candidate.create({
         data: {
           email: email,
-          password: password,
+          password: hashedPassword,
           name: "Candidate",
         },
       });

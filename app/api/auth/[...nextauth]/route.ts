@@ -1,61 +1,54 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import db from "../../../../db/databaseController";
-const handler = NextAuth({
+import bcrypt from "bcrypt";
+
+// Define the NextAuth options
+const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "email", type: "text", placeholder: "" },
-        password: { label: "password", type: "password", placeholder: "" },
-        role: { label: "role", type: "text", placeholder: "" },
+        username: { label: "Email", type: "text", placeholder: "" },
+        password: { label: "Password", type: "password", placeholder: "" },
+        role: { label: "Role", type: "text", placeholder: "" },
       },
       async authorize(credentials) {
         if (!credentials) {
           return null;
         }
-        if (!credentials.username || !credentials.password) {
-          return null;
-        }
-        if (
-          credentials.role !== "recruiter" &&
-          credentials.role !== "candidate"
-        ) {
-          return null;
-        }
         const { username, password, role } = credentials;
 
-        if (role === "recruiter") {
-          try {
-            const user = await db.recruiter.findFirst({
-              where: { email: username },
-            });
-            if (user) {
-              return {
-                id: user.id,
-                email: user.email,
-                role: "recruiter",
-              };
-            }
-          } catch (error) {
-            console.error(error);
-          }
+        if (
+          !username ||
+          !password ||
+          (role !== "recruiter" && role !== "candidate")
+        ) {
+          console.log("Invalid credentials", credentials);
+          return null;
         }
-        if (role === "candidate") {
-          try {
-            const user = await db.candidate.findFirst({
-              where: { email: username },
-            });
-            if (user) {
-              return {
-                id: user.id,
-                email: user.email,
-                role: "candidate",
-              };
+
+        try {
+          const user = await (role === "recruiter"
+            ? db.recruiter.findFirst({ where: { email: username } })
+            : db.candidate.findFirst({ where: { email: username } }));
+
+          console.log(user);
+          if (user) {
+            const match = await bcrypt.compare(password, user.password);
+            if (!match) {
+              return null;
             }
-          } catch (error) {
-            console.error(error);
+            console.log("User found", user);
+            return {
+              id: user.id,
+              email: user.email,
+              role,
+            };
           }
+        } catch (error) {
+          console.error(error);
+          return null;
         }
         return null;
       },
@@ -65,6 +58,21 @@ const handler = NextAuth({
   pages: {
     signIn: "/auth/login",
   },
-});
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Redirect to the /jobs page after successful sign-in
+      if (url.startsWith(baseUrl)) {
+        return `${baseUrl}/jobs`;
+      }
+      // Allow relative callback URLs
+      else if (url.startsWith("/")) {
+        return `${baseUrl}/jobs`;
+      }
+      return baseUrl;
+    },
+  },
+};
 
-export { handler as GET, handler as POST };
+// Export the handlers for GET and POST requests
+export const GET = NextAuth(options);
+export const POST = NextAuth(options);

@@ -19,6 +19,7 @@ export default function Form() {
         <Input
           id="email"
           type="email"
+          name="username"
           placeholder="Enter your email address"
           required
           onChange={(e) => setEmail(e.target.value)}
@@ -36,6 +37,7 @@ export default function Form() {
         </div>
         <Input
           id="password"
+          name="password"
           type="password"
           placeholder="Enter your password"
           required
@@ -49,8 +51,9 @@ export default function Form() {
         onClick={async (e: any) => {
           e.preventDefault();
           await signIn("credentials", {
-            email: email,
+            username: email,
             password: password,
+            role: "candidate",
           });
         }}
       >
