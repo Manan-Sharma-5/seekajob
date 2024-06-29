@@ -1,35 +1,8 @@
 import JobComponent from "@/components/JobComponent";
+import { getJobs } from "@/utils/GetJob";
 
-export default function Jobs() {
-  const jobs = [
-    {
-      id: 1,
-      title: "Software Engineer",
-      description:
-        "We are looking for a passionate Software Engineer to design, develop and install software solutions. The successful candidate will be able to build high-quality, innovative and fully performing software in compliance with coding standards and technical design.",
-      salary: 100000,
-      location: "Remote",
-      type: "Full-time",
-    },
-    {
-      id: 2,
-      title: "Frontend Developer",
-      description:
-        "We are looking for a passionate Frontend Developer to design, develop and install software solutions. The successful candidate will be able to build high-quality, innovative and fully performing software in compliance with coding standards and technical design.",
-      salary: 100000,
-      location: "Remote",
-      type: "Full-time",
-    },
-    {
-      id: 3,
-      title: "Backend Developer",
-      description:
-        "We are looking for a passionate Backend Developer to design, develop and install software solutions. The successful candidate will be able to build high-quality, innovative and fully performing software in compliance with coding standards and technical design.",
-      salary: 100000,
-      location: "Remote",
-      type: "Full-time",
-    },
-  ];
+export default async function Page() {
+  const jobs = await getJobs();
 
   return (
     <div>

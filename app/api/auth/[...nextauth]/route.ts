@@ -41,9 +41,9 @@ const options: NextAuthOptions = {
             }
             console.log("User found", user);
             return {
-              id: user.id,
-              email: user.email,
               role,
+              userID: user.id,
+              email: user.email,
             };
           }
         } catch (error) {
@@ -59,14 +59,25 @@ const options: NextAuthOptions = {
     signIn: "/auth/login",
   },
   callbacks: {
+    jwt: async ({ token, user }) => {
+      if (user) {
+        console.log("User found", user);
+        // Add role and ID to the JWT token
+        token.role = user.role;
+        token.id = user.userID;
+        token.name = user.name;
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
+      ...session,
+      user: token,
+    }),
     async redirect({ url, baseUrl }) {
       // Redirect to the /jobs page after successful sign-in
-      if (url.startsWith(baseUrl)) {
-        return `${baseUrl}/jobs`;
-      }
       // Allow relative callback URLs
-      else if (url.startsWith("/")) {
-        return `${baseUrl}/jobs`;
+      if (url.startsWith("/")) {
+        return url;
       }
       return baseUrl;
     },

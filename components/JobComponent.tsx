@@ -2,12 +2,17 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 
 interface Job {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  salary: number;
+  detailedDescription: string;
+  companyID: string;
+  experience: string;
   location: string;
-  type: string;
+  salary: number;
+  recruiterId: string;
+  category: string;
+  tags: string[];
 }
 
 export default function JobComponent({ job }: { job: Job }) {
@@ -18,11 +23,7 @@ export default function JobComponent({ job }: { job: Job }) {
           Job Title: <span className="text-2xl font-normal">{job.title}</span>
         </h2>
       </div>
-      <div>
-        <h2 className="text-2xl font-bold">
-          Job Type: <span className="text-2xl font-normal">{job.type}</span>
-        </h2>
-      </div>
+      <div></div>
       <div>
         <h2 className="text-2xl font-bold">Job Description:</h2>
         <p>

@@ -10,7 +10,7 @@ interface User {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { email, password, role } = body;
+  const { email, password, role, name } = body;
   console.log(email);
 
   if (!email || !password) {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
           data: {
             email: email,
             password: hashedPassword,
-            name: "Recruiter",
+            name: name,
           },
         })
         .then((res) => {
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         data: {
           email: email,
           password: hashedPassword,
-          name: "Candidate",
+          name: name,
         },
       });
     } catch (error) {

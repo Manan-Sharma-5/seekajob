@@ -1,14 +1,23 @@
 import { withAuth } from "next-auth/middleware";
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export default withAuth(
-  (req: NextRequest) => {
-    // Check for specific user roles if needed
-    // if (session && session.user && session.user.role !== "recruiter") {
-    //   // Redirect unauthorized users
-    //   url.pathname = "/unauthorized";
-    //   return NextResponse.redirect(url);
-    // }
+  async (req: NextRequest) => {
+    // Authorization logic
+    const token = await getToken({ req });
+
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+
+    if (
+      token.role !== "recruiter" &&
+      req.nextUrl.pathname.startsWith("/recruiter")
+    ) {
+      return NextResponse.redirect(new URL("/jobs", req.url));
+    }
+
     return NextResponse.next();
   },
   {
@@ -22,5 +31,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/jobs", "/jobs/:id*"],
+  matcher: ["/jobs", "/jobs/:id*", "/recruiter/:path*"],
 };

@@ -20,32 +20,41 @@ model Recruiter {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  jobs Job[]
+  jobs      Job[]
 }
 
 model Candidate {
-  id        String   @id @default(cuid()) @map("_id")
-  name      String
-  email     String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String         @id @default(cuid()) @map("_id")
+  name         String
+  email        String
+  password     String
+  appliedJobs  String[]       @default([])
+  resume       String
+  Job          Job[]          @relation(fields: [appliedJobs], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  JobApplicant JobApplicant[]
 }
 
 model Job {
-  id          String   @id @default(cuid()) @map("_id")
-  title       String
-  description String
+  id                  String         @id @default(cuid()) @map("_id")
+  title               String
+  description         String
   detailedDescription String
-  Company     Company @relation(fields: [id], references: [id])
-  experience  String
-  location    String
-  salary      Float
-  recruiter   Recruiter @relation(fields: [recruiterId], references: [id])
-  recruiterId String
-  tags        String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  companyID           String
+  Company             Company        @relation(fields: [companyID], references: [id])
+  experience          String
+  location            String
+  salary              Float
+  recruiter           Recruiter      @relation(fields: [recruiterId], references: [id])
+  recruiterId         String
+  category            String
+  candidates          String[]       @default([])
+  candidatesApplied   Candidate[]    @relation(fields: [candidates], references: [id])
+  tags                String[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  JobApplicant        JobApplicant[]
 }
 
 model Company {
@@ -53,5 +62,21 @@ model Company {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Company    Job[]
+  Company   Job[]
+}
+
+model JobApplicant {
+  id        String    @id @default(cuid()) @map("_id")
+  jobID     String
+  userID    String
+  Job       Job       @relation(fields: [jobID], references: [id])
+  User      Candidate @relation(fields: [userID], references: [id])
+  name      String
+  email     String
+  resume    String
+  status    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([jobID, userID])
 }
