@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import axios from "axios";
+import {
+  JobCreateService,
+  JobDetailsApplyService,
+} from "@/services/JobServices";
 
 interface Company {
   id: number;
@@ -21,7 +25,7 @@ interface Job {
   jobLocation: string;
   jobType: string;
   jobCategory: string;
-  jobSalary: string;
+  jobSalary: number;
   jobExperience: string;
 }
 
@@ -57,7 +61,7 @@ export default function Form() {
     jobLocation: "",
     jobType: "",
     jobCategory: "",
-    jobSalary: "",
+    jobSalary: 0,
     jobExperience: "",
   });
 
@@ -214,7 +218,9 @@ export default function Form() {
           type="text"
           placeholder="Enter the job salary"
           required
-          onChange={(e) => setJob({ ...job, jobSalary: e.target.value })}
+          onChange={(e) =>
+            setJob({ ...job, jobSalary: Number(e.target.value) })
+          }
         />
       </div>
       <div className="grid gap-2">
@@ -235,15 +241,25 @@ export default function Form() {
         className="w-full hover:bg-red-500 hover:text-white"
         onClick={async (e) => {
           e.preventDefault();
-          axios.post("/api/createJob", {
+          await JobCreateService({
             title: job.jobTitle,
+            company: job.company,
             description: job.jobDescription,
-            salary: parseInt(job.jobSalary),
-            location: job.jobLocation,
             detailedDescription: job.jobLongDescription,
-            company: job.company || selectedCompany.name,
+            location: job.jobLocation,
+            category: job.jobCategory,
+            salary: job.jobSalary,
             experience: job.jobExperience,
-          });
+            tags: [job.jobType],
+          })
+            .then((res) => {
+              console.log(res);
+              alert("Job posted successfully");
+            })
+            .catch((err) => {
+              console.log(err);
+              alert("Error posting the job");
+            });
         }}
       >
         Create Job Posting

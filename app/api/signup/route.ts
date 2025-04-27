@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
           email: email,
           password: hashedPassword,
           name: name,
+          resume: "",
         },
       });
     } catch (error) {

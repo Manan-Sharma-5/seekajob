@@ -1,6 +1,8 @@
 "use client";
-import ButtonApply from "./ButtonApply";
-import { JobDetailsFetchService } from "@/services/JobServices";
+import {
+  AllApplicantsService,
+  JobDetailsFetchService,
+} from "@/services/JobServices";
 import { useEffect, useState } from "react";
 
 interface JobDetails {
@@ -17,9 +19,38 @@ interface JobDetails {
   tags: string[];
 }
 
+interface Applicant {
+  id: string;
+  jobID: string;
+  userID: string;
+  name: string;
+  email: string;
+  resume: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function JobPage(props: { params: { jobID: string } }) {
   const { jobID } = props.params;
   const [job, setJob] = useState<JobDetails | null>(null);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+
+  const setApplicantsList = async (jobID: string) => {
+    try {
+      const response = await AllApplicantsService(jobID);
+      setApplicants(response);
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      await setApplicantsList(jobID);
+    };
+    fetchApplicants();
+  }, [jobID]);
 
   const getJob = async (jobID: string): Promise<JobDetails | null> => {
     try {
@@ -74,11 +105,33 @@ export default function JobPage(props: { params: { jobID: string } }) {
         )}
       </div>
       <div className="sticky top-0 ml-auto w-1/3">
-        <div className="p-4 bg-white shadow-md">
-          <p className="mb-4">
-            To process the application, please click on the Apply button below.
-          </p>
-          {job ? <ButtonApply params={props.params} /> : null}
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold mb-2">Applicants:</h2>
+          {applicants.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {applicants.map((applicant) => (
+                <li
+                  key={applicant.id}
+                  className="p-2 border rounded-md shadow-sm"
+                >
+                  <p>
+                    <span className="font-semibold">Name:</span>{" "}
+                    {applicant.name}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Email:</span>{" "}
+                    {applicant.email}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Status:</span>{" "}
+                    {applicant.status}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No applicants yet for this job.</p>
+          )}
         </div>
       </div>
     </div>

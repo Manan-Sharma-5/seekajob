@@ -1,8 +1,23 @@
+"use client";
+import AuthHOC from "@/components/hoc/AuthHOC";
 import JobComponent from "@/components/JobComponent";
-import { getJobs } from "@/utils/GetJob";
+import { JobsFetchService } from "@/services/JobServices";
+import { useEffect, useState } from "react";
 
-export default async function Page() {
-  const jobs = await getJobs();
+const JobPage = () => {
+  const [jobs, setJobs] = useState<any[]>([]);
+  const fetchJobs = async () => {
+    try {
+      const response = await JobsFetchService();
+      setJobs(response);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   return (
     <div>
@@ -18,4 +33,6 @@ export default async function Page() {
       </div>
     </div>
   );
-}
+};
+
+export default AuthHOC(JobPage);

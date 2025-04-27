@@ -13,9 +13,11 @@ export async function GET(request: NextRequest, response: NextResponse) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    console.log(token);
+
     const jobs = await db.job.findMany({
       where: {
-        recruiterId: token?.sub,
+        recruiterId: token?.id || "",
       },
     });
 

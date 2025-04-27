@@ -3,19 +3,21 @@ import React from "react";
 import RecruiterHeader from "@/components/RecruiterHeader";
 import axios from "axios";
 import JobCardRecruiter from "@/components/JobCardRecruiter";
+import { JobDetailsRecruiterService } from "@/services/JobServices";
 
 export default function RecruiterPage() {
-  const [jobs, setJobs] = React.useState([]);
+  const [jobs, setJobs] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState<string>();
 
   const getJobs = async () => {
     try {
-      const response = await axios.get("/api/getjobsbyrecruiter");
-      console.log(response.data);
-      setJobs(response.data);
+      const response = await JobDetailsRecruiterService();
+      console.log(response);
+      setJobs(response);
     } catch (error) {
-      setError(error.message);
+      console.error("Error fetching jobs:", error);
+      setError("Failed to fetch jobs. Please try again later.");
     } finally {
       setLoading(false);
     }

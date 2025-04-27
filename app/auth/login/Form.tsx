@@ -8,11 +8,15 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/context/Auth-Context-Provider";
 
 export default function Form() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [role, setRole] = React.useState("candidate");
+  const { login } = useAuthContext();
+  const router = useRouter();
 
   return (
     <div className="grid gap-4">
@@ -68,11 +72,8 @@ export default function Form() {
         className="w-full"
         onClick={async (e: any) => {
           e.preventDefault();
-          await signIn("credentials", {
-            username: email,
-            password: password,
-            role: role,
-          });
+          await login(email, password, role === "candidate" ? true : false);
+          router.push("/jobs");
         }}
       >
         Login

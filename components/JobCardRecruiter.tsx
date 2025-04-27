@@ -7,7 +7,13 @@ interface Job {
   description: string;
   salary: number;
   location: string;
-  company: string;
+  company: {
+    id: number;
+    name: string;
+    description: string;
+    location: string;
+    logo: string;
+  };
   type: string;
 }
 
@@ -26,7 +32,8 @@ export default function JobCardRecruiter({ job }: { job: Job }) {
       </div>
       <div>
         <h2 className="text-2xl font-bold">
-          Company: <span className="text-2xl font-normal">{job.company}</span>
+          Company:{" "}
+          <span className="text-2xl font-normal">{job.company.name}</span>
         </h2>
       </div>
 

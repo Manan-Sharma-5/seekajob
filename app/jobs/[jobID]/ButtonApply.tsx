@@ -2,13 +2,12 @@
 
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import { JobDetailsApplyService } from "@/services/JobServices";
 
 const applyJob = async (jobID: string) => {
   try {
     console.log("jobID", jobID);
-    const res = await axios.post("/api/apply-job", {
-      jobId: jobID,
-    });
+    const res = await JobDetailsApplyService(jobID);
     alert("Applied for job successfully");
   } catch (e) {
     console.error("Error applying for job:", e);

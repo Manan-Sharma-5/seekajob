@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import JobHeader from "@/components/JobHeader";
-import NextAuthProvider from "@/utils/NextAuthProvider";
 import { useSession } from "next-auth/react";
+import RecruiterHeader from "@/components/RecruiterHeader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,10 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <NextAuthProvider>
-      <html lang="en">
-        <body className={inter.className}>{children}</body>
-      </html>
-    </NextAuthProvider>
+    <html lang="en">
+      <body className={inter.className}>
+        <RecruiterHeader />
+        {children}
+      </body>
+    </html>
   );
 }
