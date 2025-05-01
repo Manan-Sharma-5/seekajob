@@ -9,12 +9,14 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import axios from "axios";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuthContext } from "@/context/Auth-Context-Provider";
 
 export default function Form() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [name, setName] = React.useState("");
   const [role, setRole] = React.useState("candidate");
+  const { register } = useAuthContext();
 
   return (
     <div className="grid gap-4">
@@ -71,24 +73,12 @@ export default function Form() {
         className="w-full"
         onClick={async (e: any) => {
           e.preventDefault();
-          await axios
-            .post("/api/signup", {
-              email: email,
-              password: password,
-              name: name,
-              role: role,
-            })
-            .then(async (res) => {
-              if (res.data.error) {
-                alert(res.data.error);
-              } else {
-                await signIn("credentials", {
-                  username: email,
-                  password: password,
-                  role: role,
-                });
-              }
-            });
+          await register(
+            email,
+            password,
+            name,
+            role === "candidate" ? true : false
+          );
         }}
       >
         Sign Up

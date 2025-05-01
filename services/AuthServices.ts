@@ -12,7 +12,7 @@ export const SignUpService = async (
       email,
       password,
       name,
-      isCandidate,
+      is_candidate: isCandidate,
     });
     if (response.status === 200) {
       return response.data;
@@ -41,6 +41,32 @@ export const SignInService = async (
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   } catch (error) {
     console.error("Error during sign in:", error);
+    throw error;
+  }
+};
+
+export const GetUserDetailsService = async () => {
+  try {
+    const response = await BaseServiceURL.get(`/auth/user`);
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    throw error;
+  }
+};
+
+export const LogoutService = async () => {
+  try {
+    const response = await BaseServiceURL.post("/auth/logout");
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  } catch (error) {
+    console.error("Error during logout:", error);
     throw error;
   }
 };

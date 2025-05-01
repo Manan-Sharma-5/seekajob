@@ -101,8 +101,10 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({
         name: name,
         is_candidate: res.is_candidate,
       });
-      setToken(res.email);
-      toast.error("Invalid credentials: " + res.data.error);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("token", res.token);
+      setToken(res.user.email);
+      router.push("/jobs");
     });
   };
 

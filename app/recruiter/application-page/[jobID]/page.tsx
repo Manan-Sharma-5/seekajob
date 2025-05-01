@@ -3,6 +3,7 @@ import {
   AllApplicantsService,
   JobDetailsFetchService,
 } from "@/services/JobServices";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface JobDetails {
@@ -35,6 +36,7 @@ export default function JobPage(props: { params: { jobID: string } }) {
   const { jobID } = props.params;
   const [job, setJob] = useState<JobDetails | null>(null);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const router = useRouter();
 
   const setApplicantsList = async (jobID: string) => {
     try {
@@ -56,8 +58,8 @@ export default function JobPage(props: { params: { jobID: string } }) {
     try {
       const job = await JobDetailsFetchService(jobID);
       if (job) {
-        setJob(job);
-        return job;
+        setJob(job.jobs);
+        return job.jobs;
       } else {
         console.error("Job not found");
         return null;
@@ -84,7 +86,11 @@ export default function JobPage(props: { params: { jobID: string } }) {
         {job ? (
           <>
             <h1 className="text-3xl font-bold">
-              Company Name: <span className="font-normal">{job.companyID}</span>
+              Company Name:{" "}
+              <span className="font-normal">
+                {" "}
+                {job.company ? job.company.name : null}
+              </span>
             </h1>
             <h2 className="text-2xl font-bold">
               Job Title: <span className="font-normal">{job.title}</span>
@@ -107,12 +113,15 @@ export default function JobPage(props: { params: { jobID: string } }) {
       <div className="sticky top-0 ml-auto w-1/3">
         <div className="mb-4">
           <h2 className="text-2xl font-bold mb-2">Applicants:</h2>
-          {applicants.length > 0 ? (
+          {applicants && applicants.length > 0 ? (
             <ul className="flex flex-col gap-2">
               {applicants.map((applicant) => (
                 <li
                   key={applicant.id}
-                  className="p-2 border rounded-md shadow-sm"
+                  className="p-2 border rounded-md shadow-sm cursor-pointer"
+                  onClick={() => {
+                    router.push(`/recruiter/applicant-details/${applicant.id}`);
+                  }}
                 >
                   <p>
                     <span className="font-semibold">Name:</span>{" "}

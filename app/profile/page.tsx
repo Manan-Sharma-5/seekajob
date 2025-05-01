@@ -1,6 +1,8 @@
 "use client";
 import JobHeader from "@/components/JobHeader";
 import { Button } from "@/components/ui/button";
+import { GetUserDetailsService } from "@/services/AuthServices";
+import { UploadResumeService } from "@/services/JobServices";
 import { getProfile } from "@/utils/GetProfile";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -17,60 +19,56 @@ export default function Profile() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
   const [resume, setResume] = useState("");
   const [resumePreview, setResumePreview] = useState<string | null>(null);
 
   const initUpload = async () => {
     try {
-      const response = await axios.post("/api/resume");
-      const uploadUrl = response.data.uploadUrl;
       const fileInput = document.createElement("input");
       fileInput.type = "file";
       fileInput.accept = ".pdf";
       fileInput.click();
       fileInput.onchange = async () => {
-        const file = fileInput.files[0];
+        const file = fileInput.files?.[0];
+        if (!file) {
+          console.log("No file selected");
+          return;
+        }
+
         const formData = new FormData();
         formData.append("resume", file);
 
-        // Create a preview URL
         const previewUrl = URL.createObjectURL(file);
         setResumePreview(previewUrl);
 
-        await axios
-          .put(uploadUrl, formData, {
-            headers: {
-              "Content-Type": "application/pdf",
-            },
-          })
-          .then(async (response) => {
+        try {
+          await UploadResumeService(file).then(async (response) => {
             setResume(file.name);
-            await axios.post("/api/resume/update-profile", {
-              resume,
-            });
           });
+        } catch (err) {
+          console.error("Upload failed", err);
+          setError(err.message);
+        }
       };
     } catch (error) {
+      console.error("Error uploading resume", error);
       setError(error.message);
     }
   };
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get("/api/profile");
-      setProfile(response.data.profile);
-    } catch (error) {
-      setError(error.message);
-    } finally {
+      const response = await GetUserDetailsService();
+      setProfile(response);
+      setAppliedJobs(response.appliedJobs);
+      const resumePath = response.resume;
+      // this will have address as resumes/<userId>.pdf
+      if (resumePath) {
+        const resumeUrl = `http://localhost:8080/api/${resumePath}`;
+        setResume(resumeUrl);
+      }
       setLoading(false);
-    }
-  };
-
-  const fetchResume = async () => {
-    try {
-      const response = await axios.get("/api/resume");
-      setResume(response.data.downloadUrl);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -80,7 +78,6 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
-    fetchResume();
   }, []);
 
   return (
@@ -119,14 +116,14 @@ export default function Profile() {
       <div className="text-2xl font-bold text-gray-800 mt-4 ml-4">
         Applied Jobs
         {appliedJobs.length > 0 ? (
-          <div>
+          <div className="grid grid-cols-3 gap-4 mt-4">
             {appliedJobs.map((job) => (
-              <div key={job.id}>
+              <div key={job.id} className="border-2 border-black p-4">
                 <div className="text-xl font-bold text-gray-800 mt-4 ml-4">
-                  {job.title}
+                  Title: {job.title}
                 </div>
                 <div className="text-xl font-bold text-gray-800 mt-4 ml-4">
-                  {job.description}
+                  Description: {job.description}
                 </div>
               </div>
             ))}

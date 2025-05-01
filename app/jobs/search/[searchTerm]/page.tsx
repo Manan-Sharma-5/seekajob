@@ -1,48 +1,56 @@
 "use client";
-import AuthHOC from "@/components/hoc/AuthHOC";
 import JobComponent from "@/components/JobComponent";
-import { JobsFetchService, SearchJobService } from "@/services/JobServices";
+import { SearchJobService } from "@/services/JobServices";
 import { useEffect, useState } from "react";
 
-const JobPage = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
+interface JobDetails {
+  id: string;
+  title: string;
+  description: string;
+  detailedDescription: string;
+  companyID: string;
+  experience: string;
+  location: string;
+  salary: number;
+  recruiterId: string;
+  category: string;
+  tags: string[];
+  company?: {
+    name: string;
+  };
+}
+
+interface RecommendedJob {
+  id: string;
+  title: string;
+  location: string;
+  salary: number;
+}
+
+export default function JobPage(props: { params: { searchTerm: string } }) {
+  const { searchTerm } = props.params;
+  const [jobs, setJob] = useState<JobDetails[] | null>(null);
   const [salaryFilter, setSalaryFilter] = useState<string>("");
   const [locationFilter, setLocationFilter] = useState<string>("");
   const [tagsFilter, setTagsFilter] = useState<string>("");
-  const fetchJobs = async () => {
-    try {
-      const response = await JobsFetchService();
-      setJobs(response);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    }
-  };
 
   const getJob = async () => {
     try {
       const jobData = await SearchJobService(
-        "",
+        searchTerm,
         salaryFilter,
         locationFilter,
         tagsFilter
       );
-      setJobs(jobData);
+      setJob(jobData);
     } catch (error) {
       console.error("Error fetching job details:", error);
     }
   };
 
   useEffect(() => {
-    if (salaryFilter || locationFilter || tagsFilter) {
-      getJob();
-    } else {
-      fetchJobs();
-    }
-  }, [salaryFilter, locationFilter, tagsFilter]);
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+    getJob();
+  }, [searchTerm, salaryFilter, locationFilter, tagsFilter]);
 
   return (
     <div>
@@ -100,6 +108,4 @@ const JobPage = () => {
       </div>
     </div>
   );
-};
-
-export default AuthHOC(JobPage);
+}

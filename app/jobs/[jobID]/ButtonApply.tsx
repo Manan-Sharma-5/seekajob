@@ -9,6 +9,7 @@ const applyJob = async (jobID: string) => {
     console.log("jobID", jobID);
     const res = await JobDetailsApplyService(jobID);
     alert("Applied for job successfully");
+    window.location.reload();
   } catch (e) {
     console.error("Error applying for job:", e);
     alert("Error applying for job");

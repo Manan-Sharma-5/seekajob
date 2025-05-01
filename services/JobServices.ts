@@ -94,3 +94,69 @@ export const AllApplicantsService = async (jobID: string) => {
     throw error;
   }
 };
+
+export const ApplicantDetailsService = async (applicationID: string) => {
+  try {
+    const response = await BaseServiceURL.get(
+      `/job/applicant/${applicationID}`
+    );
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  } catch (error) {
+    console.error("Error during sign up:", error);
+    throw error;
+  }
+};
+
+export const DeleteJobService = async (jobID: string) => {
+  try {
+    const response = await BaseServiceURL.delete(`/job/${jobID}`);
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  } catch (error) {
+    console.error("Error during sign up:", error);
+    throw error;
+  }
+};
+
+export const SearchJobService = async (
+  query: string,
+  salary?: string,
+  location?: string,
+  tags?: string
+) => {
+  try {
+    let url = `/job/search?query=${encodeURIComponent(query)}`;
+
+    if (salary) {
+      url += `&salary=${encodeURIComponent(salary)}`;
+    }
+    if (location) {
+      url += `&location=${encodeURIComponent(location)}`;
+    }
+    if (tags) {
+      url += `&tags=${encodeURIComponent(tags)}`;
+    }
+
+    const response = await BaseServiceURL.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return null;
+  }
+};
+
+export const UploadResumeService = (file: File) => {
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  return BaseServiceURL.post("auth/upload-resume", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

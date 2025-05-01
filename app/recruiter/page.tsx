@@ -37,9 +37,8 @@ export default function RecruiterPage() {
 
   return (
     <div>
-      <RecruiterHeader />
       <div className="items-center justify-center w-[100%] mt-10">
-        {jobs.length > 0 ? (
+        {jobs && jobs.length > 0 ? (
           <div className="grid grid-cols-3 gap-10 w-[100%] px-10">
             {jobs.map((job) => (
               <JobCardRecruiter key={job.id} job={job} />
